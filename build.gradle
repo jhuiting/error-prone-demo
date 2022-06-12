@@ -1,0 +1,44 @@
+import net.ltgt.gradle.errorprone.*
+
+plugins {
+	id 'org.springframework.boot' version '2.7.0'
+	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+	id 'java'
+
+	id("net.ltgt.errorprone") version '2.0.2'
+	id("net.ltgt.nullaway") version '1.3.0'
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '17'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	errorprone("com.google.errorprone:error_prone_core:2.14.0")
+	errorprone("com.uber.nullaway:nullaway:0.9.7")
+
+	compileOnly("com.google.code.findbugs:jsr305:3.0.2")
+
+	implementation 'org.springframework.boot:spring-boot-starter'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+nullaway {
+	annotatedPackages.add("com.example.demo")
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
+
+tasks.withType(JavaCompile).configureEach {
+	// See https://github.com/tbroyer/gradle-errorprone-plugin/blob/main/README.md#properties
+	options.errorprone.disableWarningsInGeneratedCode = true // turn into warnings
+	options.errorprone.nullaway {
+		severity = CheckSeverity.ERROR
+	}
+}
